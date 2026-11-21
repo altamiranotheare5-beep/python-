@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Código a pasitos</title>
+<style>
+:root{
+  --texto:#f5f3ff; --suave:#c4b5fd; --tenue:#a5a0d6;
+  --cristal:rgba(33,22,86,.62); --cristal-borde:rgba(196,181,253,.32);
+  --violeta:#a855f7; --cian:#38bdf8; --verde:#4ade80; --ambar:#fde047; --naranja:#fb923c; --rojo:#f87171;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--texto);min-height:100vh;
+  background:
+    radial-gradient(circle at 18% 12%,rgba(168,85,247,.45) 0,transparent 38%),
+    radial-gradient(circle at 88% 8%,rgba(56,189,248,.35) 0,transparent 32%),
+    radial-gradient(circle at 70% 92%,rgba(236,72,153,.28) 0,transparent 34%),
+    radial-gradient(circle at 12% 88%,rgba(34,211,238,.22) 0,transparent 30%),
+    linear-gradient(180deg,#1a1048 0%,#2a1a6e 55%,#1e2f78 100%);
+  background-attachment:fixed;
+}
+/* Estrellas */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.8;
+  background-image:
+    radial-gradient(1.5px 1.5px at 8% 14%,#fff,transparent),
+    radial-gradient(1px 1px at 22% 62%,#e9d5ff,transparent),
+    radial-gradient(1.5px 1.5px at 36% 9%,#fff,transparent),
+    radial-gradient(1px 1px at 51% 78%,#bae6fd,transparent),
+    radial-gradient(1.5px 1.5px at 63% 22%,#fff,transparent),
+    radial-gradient(1px 1px at 77% 55%,#fde68a,transparent),
+    radial-gradient(1.5px 1.5px at 91% 30%,#fff,transparent),
+    radial-gradient(1px 1px at 4% 90%,#fff,transparent),
+    radial-gradient(1px 1px at 58% 42%,#f5d0fe,transparent),
+    radial-gradient(1.5px 1.5px at 95% 92%,#fff,transparent);
+}
+.oculto{display:none !important}
+body > *{position:relative;z-index:1}
+:focus-visible{outline:3px solid #fde047;outline-offset:2px}
+
+/* Cabecera */
+.top{padding:14px 18px 6px}
+.top-in{
+  max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;
+}
+.pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{
+  padding:7px 14px;border-radius:999px;font-weight:800;font-size:.84rem;white-space:nowrap;
+  background:var(--cristal);border:1px solid var(--cristal-borde);color:var(--texto);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}
+.pill.verde{background:linear-gradient(180deg,rgba(74,222,128,.35),rgba(22,163,74,.25));border-color:rgba(74,222,128,.5)}
+.pill.violeta{background:linear-gradient(180deg,rgba(168,85,247,.45),rgba(109,40,217,.3));border-color:rgba(192,132,252,.6)}
+.pill.ambar{background:linear-gradient(180deg,rgba(253,224,71,.35),rgba(202,138,4,.25));border-color:rgba(253,224,71,.6)}
+.marca{text-align:center}
+.marca h1{
+  margin:0;font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:.3px;line-height:1.1;
+  background:linear-gradient(90deg,#f0abfc 0%,#c084fc 40%,#fde047 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 rgba(30,10,80,.5));
+}
+.marca span{
+  display:inline-block;margin-top:6px;padding:3px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);
+  font-size:.66rem;letter-spacing:1.4px;text-transform:uppercase;font-weight:800;color:var(--suave);background:rgba(20,12,60,.45);
+}
+.tabs-sec{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.tab-sec{
+  border:1px solid var(--cristal-borde);border-radius:999px;padding:9px 18px;min-height:40px;cursor:pointer;
+  font:inherit;font-weight:800;color:var(--texto);background:var(--cristal);
+}
+.tab-sec.activo{
+  background:linear-gradient(180deg,#c084fc,#7c3aed);border-color:#e9d5ff;color:#fff;
+  box-shadow:0 4px 0 #4c1d95,0 0 18px rgba(192,132,252,.6);
+}
+.tab-sec[data-sec="python"].activo{
+  background:linear-gradient(180deg,#67e8f9,#0891b2);border-color:#cffafe;color:#082f49;
+  box-shadow:0 4px 0 #155e75,0 0 18px rgba(103,232,249,.55);
+}
+@media (max-width:820px){
+  .top-in{grid-template-columns:1fr}
+  .marca,.tabs-sec{justify-self:center;justify-content:center}
+}
+
+.seccion{max-width:1120px;margin:0 auto;padding:14px 18px 60px;display:flex;flex-direction:column;gap:18px}
+
+/* Tarjetas */
+.tarjeta{
+  background:var(--cristal);border:1px solid var(--cristal-borde);border-radius:26px;padding:20px 22px;
+  box-shadow:0 14px 40px rgba(10,5,40,.45),inset 0 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(6px);
+}
+.encabezado{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.etiqueta{
+  background:rgba(253,224,71,.16);color:var(--ambar);border:1px solid rgba(253,224,71,.45);
+  border-radius:999px;padding:5px 12px;font-size:.74rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+}
+.etiqueta.violeta{background:rgba(192,132,252,.18);color:#e9d5ff;border-color:rgba(192,132,252,.5)}
+.nota{font-size:.88rem;color:var(--suave);font-weight:700}
+.titulo{margin:0 0 6px;font-size:1.6rem;color:#fff;font-weight:900;line-height:1.2;text-shadow:0 2px 0 rgba(20,8,60,.5)}
+.info{margin:0 0 4px;font-size:.95rem;color:#ede9fe}
+.etq{font-size:.74rem;text-transform:uppercase;letter-spacing:.8px;font-weight:800;color:var(--tenue);margin:18px 0 8px}
+.teoria p{margin:0 0 8px;color:#ede9fe}
+.barra{height:12px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-bottom:8px}
+.barra span{display:block;height:100%;width:0;background:linear-gradient(90deg,#fde047,#4ade80);border-radius:99px;transition:width .6s ease;box-shadow:0 0 12px rgba(74,222,128,.6)}
+
+/* Senderos (niveles y lecciones) */
+.sendero-scroll{overflow-x:auto;overflow-y:hidden;padding:6px 4px 4px}
+.sendero{position:relative;height:220px}
+.sendero > svg{position:absolute;left:0;top:0;pointer-events:none;filter:drop-shadow(0 0 4px rgba(192,132,252,.7))}
+.nodo{
+  position:absolute;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  border:1px solid rgba(255,255,255,.4);
+  background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.7) 0,rgba(255,255,255,.18) 30%,rgba(139,92,246,.35) 72%,rgba(49,28,120,.6) 100%);
+  box-shadow:inset 0 0 22px rgba(255,255,255,.22),inset -6px -8px 14px rgba(20,8,70,.35),0 10px 22px rgba(5,0,30,.45);
+  transition:transform .12s,box-shadow .12s;
+}
+.ico{width:34px;height:34px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.ico svg{width:100%;height:100%}
+.candado{
+  position:absolute;left:-6px;top:-6px;width:26px;height:26px;border-radius:50%;background:#e0e7ff;color:#312e81;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.candado svg{width:14px;height:14px}
+.check-b{
+  position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:#34d399;color:#064e3b;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.check-b svg{width:15px;height:15px}
+.nodo:hover:not(:disabled){transform:scale(1.05)}
+.nodo:active:not(:disabled){transform:scale(.97)}
+.nodo.hecho{
+  background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.7) 0,rgba(255,255,255,.15) 30%,rgba(16,185,129,.4) 72%,rgba(4,47,36,.6) 100%);
+  box-shadow:inset 0 0 22px rgba(167,243,208,.25),0 10px 22px rgba(5,0,30,.45),0 0 18px rgba(52,211,153,.45);
+}
+.nodo.actual{
+  background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.75) 0,rgba(255,255,255,.2) 30%,rgba(168,85,247,.55) 72%,rgba(76,29,149,.7) 100%);
+  animation:latir 1.8s ease-in-out infinite;
+}
+.nodo.bloq{
+  background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.35) 0,rgba(255,255,255,.08) 35%,rgba(148,163,184,.25) 75%,rgba(30,41,59,.6) 100%);
+  box-shadow:inset 0 0 18px rgba(255,255,255,.1),0 8px 16px rgba(5,0,30,.4);
+  color:rgba(226,232,240,.5);cursor:not-allowed;
+}
+@keyframes latir{
+  0%,100%{box-shadow:inset 0 0 22px rgba(255,255,255,.22),0 0 14px rgba(192,132,252,.5)}
+  50%{box-shadow:inset 0 0 22px rgba(255,255,255,.22),0 0 34px rgba(192,132,252,.95)}
+}
+.nodo-etq{
+  position:absolute;width:150px;margin-left:-75px;text-align:center;font-size:.84rem;font-weight:800;color:#fff;line-height:1.2;
+}
+.nodo-etq span{
+  display:inline-block;padding:3px 10px;border-radius:10px;background:rgba(20,10,60,.55);border:1px solid rgba(255,255,255,.15);
+}
+
+/* Botones de píldora */
+.fila{display:flex;flex-wrap:wrap;gap:10px}
+.b{
+  font:inherit;font-weight:800;border:0;border-radius:999px;padding:12px 20px;min-height:48px;cursor:pointer;color:#fff;
+  background:linear-gradient(180deg,var(--c1,#c084fc),var(--c2,#7c3aed));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 5px 0 var(--s,#4c1d95),0 0 18px var(--glow,rgba(168,85,247,.45));
+  text-shadow:0 1px 0 rgba(0,0,0,.25);
+  transition:transform .08s,box-shadow .08s,filter .15s;
+}
+.b:hover:not(:disabled){filter:brightness(1.08)}
+.b:active:not(:disabled){transform:translateY(4px);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 1px 0 var(--s,#4c1d95),0 0 10px var(--glow)}
+.b.morado{--c1:#c084fc;--c2:#7c3aed;--s:#4c1d95;--glow:rgba(168,85,247,.5)}
+.b.cian{--c1:#67e8f9;--c2:#0891b2;--s:#155e75;--glow:rgba(56,189,248,.5)}
+.b.naranja{--c1:#fdba74;--c2:#ea580c;--s:#9a3412;--glow:rgba(251,146,60,.5)}
+.b.verde{--c1:#86efac;--c2:#16a34a;--s:#14532d;--glow:rgba(74,222,128,.5)}
+.b.ambar{--c1:#fef08a;--c2:#eab308;--s:#854d0e;--glow:rgba(253,224,71,.5);color:#422006;text-shadow:none}
+.b.rojo{--c1:#fca5a5;--c2:#dc2626;--s:#7f1d1d;--glow:rgba(248,113,113,.45)}
+.b.contorno{
+  --c1:rgba(255,255,255,.14);--c2:rgba(255,255,255,.06);--s:rgba(10,5,40,.5);--glow:rgba(196,181,253,.25);
+  border:1px solid rgba(196,181,253,.5);
+}
+.b.bloque{width:100%}
+.b:disabled{
+  --c1:#475569;--c2:#334155;--s:#1e293b;--glow:transparent;
+  color:#94a3b8;cursor:not-allowed;text-shadow:none;box-shadow:0 5px 0 #1e293b;
+}
+.b:focus-visible{outline:3px solid #fde047;outline-offset:3px}
+
+/* ---------- Robot ---------- */
+.robot-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.robot-grid{grid-template-columns:1fr}}
+.marco-tab{margin:14px 0 0;padding:10px;border-radius:24px;background:rgba(10,6,40,.45);border:1px solid rgba(196,181,253,.3);box-shadow:inset 0 2px 10px rgba(0,0,0,.35)}
+.tablero{
+  position:relative;width:100%;aspect-ratio:1/1;container-type:inline-size;border-radius:16px;overflow:hidden;
+  background:#1d1560;--fs:calc(3.2cqw * 5 / var(--n,5));
+}
+.cuadricula{position:absolute;inset:0;display:grid}
+.celda{
+  display:flex;align-items:center;justify-content:center;font-size:var(--fs);font-weight:900;
+  border:2px solid rgba(20,10,60,.35);
+  background:radial-gradient(circle at 35% 28%,#d9f99d 0,#86efac 35%,#22c55e 80%,#15803d 100%);
+  box-shadow:inset 0 -5px 0 rgba(6,40,20,.25);
+  color:#052e16;
+}
+.celda.muro{
+  background:radial-gradient(circle at 35% 28%,#e7e5e4 0,#a8a29e 35%,#78716c 80%,#57534e 100%);
+  box-shadow:inset 0 -6px 0 rgba(40,30,25,.35),inset 0 0 0 3px rgba(255,255,255,.12);
+}
+.celda.meta{
+  background:radial-gradient(circle at 50% 35%,#fef9c3 0,#fde047 40%,#eab308 85%,#a16207 100%);
+  color:#422006;box-shadow:inset 0 -5px 0 rgba(120,53,15,.35);animation:brillo 1.8s ease-in-out infinite;
+}
+@keyframes brillo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+.robot{position:absolute;z-index:3;pointer-events:none;transition:left .45s ease,top .45s ease,transform .4s ease}
+.robot.sin-transicion{transition:none}
+.cuerpo{
+  position:absolute;inset:18%;border-radius:22%;
+  background:radial-gradient(circle at 34% 28%,#f5d0fe 0,#c084fc 30%,#7e22ce 75%,#4c1d95 100%);
+  box-shadow:0 5px 0 #2e1065,0 0 22px rgba(192,132,252,.85);
+}
+.flecha{
+  position:absolute;left:50%;top:-30%;transform:translateX(-50%);
+  width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:14px solid var(--ambar);
+  filter:drop-shadow(0 0 6px rgba(253,224,71,.9));
+}
+.cuerpo.sacudir{animation:sacudir .45s}
+@keyframes sacudir{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.cuerpo.saltar{animation:saltar .5s ease 2}
+@keyframes saltar{0%,100%{transform:translateY(0)}50%{transform:translateY(-12%)}}
+
+.estado{
+  margin:14px 0 0;min-height:56px;padding:12px 16px;border-radius:18px;font-weight:700;font-size:.95rem;
+  background:rgba(59,130,246,.18);border:1px solid rgba(147,197,253,.35);color:#dbeafe;white-space:pre-line;
+}
+.estado.ok{background:rgba(34,197,94,.2);border-color:rgba(74,222,128,.5);color:#dcfce7}
+.estado.error{background:rgba(239,68,68,.2);border-color:rgba(248,113,113,.55);color:#fee2e2}
+.estado.aviso{background:rgba(234,179,8,.18);border-color:rgba(253,224,71,.5);color:#fef9c3}
+
+.control .bloque-control{margin-bottom:18px}
+.instr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.instr .b:first-child{grid-column:1 / -1}
+.ayuda{font-size:.84rem;color:var(--tenue);margin:8px 0 0;font-family:ui-monospace,Consolas,monospace}
+.editor{
+  width:100%;min-height:180px;resize:vertical;padding:14px;border-radius:20px;
+  border:1px solid rgba(196,181,253,.45);background:rgba(12,8,40,.7);color:#f5f3ff;
+  font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:15px;line-height:1.6;white-space:pre;overflow:auto;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.35);
+}
+.editor:focus{outline:3px solid rgba(253,224,71,.6);outline-offset:1px}
+.editor:disabled{opacity:.6}
+.lista-box{max-height:240px;overflow:auto;border-radius:20px;background:rgba(12,8,40,.45);border:1px solid rgba(196,181,253,.3);padding:8px}
+#lista{list-style:none;margin:0;padding:0}
+#lista li{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:6px;background:rgba(255,255,255,.08);border-radius:14px;font-weight:700;font-size:.94rem;color:#ede9fe}
+#lista li:last-child{margin-bottom:0}
+#lista li .num{min-width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,#c084fc,#7c3aed);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900;box-shadow:0 0 10px rgba(192,132,252,.6)}
+#lista li code{font-family:ui-monospace,Consolas,monospace;font-size:.92rem;color:#fff}
+#lista li.activa{background:rgba(253,224,71,.2);outline:2px solid rgba(253,224,71,.8)}
+#lista li.fallo{background:rgba(248,113,113,.2);color:#fecaca}
+#lista li.vacia{color:var(--tenue);justify-content:center;font-weight:600;background:transparent}
+.contador{font-size:.84rem;color:var(--tenue);font-weight:700}
+.salida{
+  margin:0;min-height:52px;padding:12px 16px;border-radius:20px;background:rgba(8,4,30,.75);color:#86efac;
+  border:1px solid rgba(74,222,128,.25);font-family:ui-monospace,Consolas,monospace;font-size:.94rem;white-space:pre-wrap;
+}
+.salida.vacia{color:#7c74ad}
+
+dialog{
+  border:1px solid rgba(196,181,253,.45);border-radius:28px;max-width:480px;width:calc(100% - 28px);padding:24px;
+  color:#ede9fe;background:linear-gradient(180deg,#2e1f76,#1d1452);box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px rgba(168,85,247,.35);
+}
+dialog::backdrop{background:rgba(10,5,40,.6);backdrop-filter:blur(3px)}
+dialog h2{margin:0 0 6px;font-size:1.6rem;color:#fff;font-weight:900}
+dialog p{margin:6px 0}
+dialog dl{margin:14px 0 0;display:grid;grid-template-columns:auto 1fr;gap:8px 12px;font-size:.92rem}
+dialog dt{font-weight:800;color:#f0abfc}
+dialog dd{margin:0}
+.dialog-botones{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+
+/* ---------- Python ---------- */
+.codigo-ej{
+  margin:0;background:rgba(8,4,30,.7);color:#f5f3ff;border:1px solid rgba(196,181,253,.3);border-radius:20px;padding:14px 16px;
+  font-family:ui-monospace,Consolas,monospace;font-size:.94rem;white-space:pre;overflow:auto;
+}
+.consigna{
+  margin:0;padding:12px 16px;border-radius:18px;font-weight:800;color:#fef9c3;
+  background:linear-gradient(90deg,rgba(253,224,71,.25),rgba(253,224,71,.06));border-left:4px solid var(--ambar);
+}
+.resultado{margin-top:16px;padding:16px 18px;border-radius:20px;border:1px solid transparent}
+.resultado.bien{background:rgba(34,197,94,.18);border-color:rgba(74,222,128,.55);color:#dcfce7}
+.resultado.mal{background:rgba(239,68,68,.18);border-color:rgba(248,113,113,.55);color:#fee2e2}
+.resultado h3{margin:0 0 4px;font-size:1.15rem;font-weight:900;color:#fff}
+.resultado p{margin:4px 0}
+.resultado pre{margin:10px 0 0;white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace;font-size:.92rem;background:rgba(8,4,30,.6);border-radius:14px;padding:10px 12px;color:#f5f3ff}
+.check{width:54px;height:54px;display:block;margin-bottom:4px;filter:drop-shadow(0 0 10px rgba(74,222,128,.8))}
+.check path{fill:none;stroke:#4ade80;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30}
+.resultado.bien .check path{animation:dibujar .6s ease .15s forwards}
+.resultado.bien .check{animation:pop .45s ease}
+@keyframes dibujar{to{stroke-dashoffset:0}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+
+.confeti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30}
+.confeti i{position:absolute;top:-16px;width:9px;height:14px;border-radius:3px;animation-name:caer;animation-timing-function:linear;animation-fill-mode:forwards;box-shadow:0 0 8px currentColor}
+@keyframes caer{to{transform:translateY(110vh) rotate(640deg);opacity:.85}}
+
+@media (prefers-reduced-motion:reduce){
+  .nodo.actual,.cuerpo.saltar,.cuerpo.sacudir,.celda.meta,.resultado.bien .check,.resultado.bien .check path{animation:none}
+  .resultado.bien .check path{stroke-dashoffset:0}
+  .confeti i{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="pills">
+      <span class="pill verde" id="pill-nivel"></span>
+      <span class="pill violeta" id="pill-robot"></span>
+      <span class="pill ambar" id="pill-python"></span>
+    </div>
+    <div class="marca">
+      <h1>Código a pasitos</h1>
+      <span>Aprendemos programando</span>
+    </div>
+    <nav class="tabs-sec" aria-label="Secciones">
+      <button class="tab-sec activo" data-sec="robot">El robot</button>
+      <button class="tab-sec" data-sec="python">Python</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ SECCIÓN ROBOT ============ -->
+<section id="s-robot" class="seccion">
+  <div class="tarjeta">
+    <div class="encabezado">
+      <span class="etiqueta violeta" id="rob-modo"></span>
+      <span class="nota" id="rob-num"></span>
+    </div>
+    <div class="sendero-scroll"><div class="sendero" id="sendero-robot"></div></div>
+  </div>
+
+  <div class="robot-grid">
+    <div class="tarjeta">
+      <h2 class="titulo" id="titulo-nivel"></h2>
+      <p class="info" id="info-inicio"></p>
+      <p class="info" id="info-meta"></p>
+      <p class="info" id="info-pista" style="color:var(--tenue)"></p>
+      <div class="marco-tab"><div class="tablero" id="tablero" aria-label="Tablero"></div></div>
+      <p id="mensaje" class="estado" role="status"></p>
+    </div>
+
+    <div class="tarjeta control">
+      <div class="solo-boton bloque-control">
+        <div class="etq" style="margin-top:0">Instrucciones</div>
+        <div class="instr">
+          <button class="b morado" id="btn-av">Avanzar</button>
+          <button class="b cian" id="btn-izq">Girar a la izquierda</button>
+          <button class="b naranja" id="btn-der">Girar a la derecha</button>
+        </div>
+      </div>
+
+      <div class="solo-codigo bloque-control">
+        <div class="etq" style="margin-top:0">Tu programa</div>
+        <textarea id="editor" class="editor" spellcheck="false" aria-label="Programa" style="min-height:160px"></textarea>
+        <p class="ayuda">avanzar() · girar_izquierda() · girar_derecha() · print("texto")</p>
+      </div>
+
+      <div class="bloque-control">
+        <div class="encabezado" style="margin-bottom:8px">
+          <span class="etq" style="margin:0" id="h-lista">Secuencia</span>
+          <span class="contador" id="contador"></span>
+        </div>
+        <div class="lista-box"><ul id="lista"></ul></div>
+      </div>
+
+      <div class="solo-codigo bloque-control">
+        <div class="etq">Pantalla del robot</div>
+        <pre id="pantalla" class="salida vacia">Aquí aparecen los mensajes de print().</pre>
+      </div>
+
+      <div class="fila">
+        <button class="b verde" id="btn-ejecutar">Ejecutar</button>
+        <button class="b ambar" id="btn-reiniciar">Reiniciar</button>
+        <button class="b contorno solo-boton" id="btn-quitar">Quitar última</button>
+        <button class="b rojo" id="btn-borrar">Borrar</button>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="fin">
+    <h2 id="fin-titulo"></h2>
+    <p id="fin-texto"></p>
+    <dl>
+      <dt>Secuencia</dt><dd>Las instrucciones se ejecutan una tras otra, en orden.</dd>
+      <dt>Algoritmo</dt><dd>Pasos ordenados y finitos que resuelven un problema.</dd>
+      <dt>Error</dt><dd>Algo que no sale como esperabas. Es normal.</dd>
+      <dt>Depuración</dt><dd>Buscar el error y corregirlo, paso a paso.</dd>
+    </dl>
+    <div class="dialog-botones">
+      <button class="b contorno" id="fin-cerrar">Ver el tablero</button>
+      <button class="b verde" id="fin-siguiente">Siguiente nivel</button>
+    </div>
+  </dialog>
+</section>
+
+<!-- ============ SECCIÓN PYTHON ============ -->
+<section id="s-python" class="seccion oculto">
+  <div class="tarjeta">
+    <div class="encabezado">
+      <span class="etiqueta" id="py-unidad"></span>
+      <span class="nota" id="progreso-txt"></span>
+    </div>
+    <div class="barra"><span id="barra"></span></div>
+    <div class="sendero-scroll"><div class="sendero" id="sendero-python"></div></div>
+  </div>
+
+  <div class="tarjeta">
+    <h2 class="titulo" id="py-titulo"></h2>
+    <div id="py-teoria" class="teoria"></div>
+
+    <div class="etq">Ejemplo</div>
+    <pre class="codigo-ej" id="py-ejemplo"></pre>
+
+    <div class="etq">Tu turno</div>
+    <p class="consigna" id="py-consigna"></p>
+    <textarea id="py-editor" class="editor" spellcheck="false" aria-label="Editor de Python" style="margin-top:12px;min-height:150px"></textarea>
+
+    <div class="fila" style="margin-top:14px">
+      <button class="b contorno" id="py-ejecutar">Ejecutar</button>
+      <button class="b cian" id="py-comprobar">Comprobar</button>
+    </div>
+
+    <div class="etq">Salida</div>
+    <pre class="salida vacia" id="py-salida">Todavía no has ejecutado nada.</pre>
+
+    <div id="py-resultado"></div>
+
+    <div class="fila" style="margin-top:16px">
+      <button class="b verde oculto" id="py-siguiente">Siguiente lección</button>
+    </div>
+  </div>
+</section>
+
+<div class="confeti" id="confeti"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+const ICONO_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function svgIcono(inner) {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+}
+/* Un icono por nivel del robot y por lección de Python. */
+const ICONOS_ROBOT = [
+  '<path d="M5 12h13M13 6l6 6-6 6"/>',
+  '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 12h18M9 5v7M15 12v7"/>',
+  '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h8M12 15h8M9 4v6M15 14v6"/>',
+  '<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>',
+  '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/>',
+  '<path d="M9 4c-2 0-2 1-2 3v3c0 1-1 2-2 2 1 0 2 1 2 2v3c0 2 0 3 2 3M15 4c2 0 2 1 2 3v3c0 1 1 2 2 2-1 0-2 1-2 2v3c0 2 0 3-2 3"/>',
+  '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'
+];
+const ICONOS_PY = [
+  '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',
+  '<path d="M6 17c0-3 1-5 3-6M14 17c0-3 1-5 3-6"/>',
+  '<path d="M4 6h16M4 12h16M4 18h10"/>',
+  '<path d="M9 4L7 20M17 4l-2 16M4 9h16M3 15h16"/>',
+  '<path d="M12 4v16M5.5 8l13 8M18.5 8l-13 8"/>',
+  '<circle cx="12" cy="6" r="1.2"/><path d="M4 12h16"/><circle cx="12" cy="18" r="1.2"/>',
+  '<path d="M4 9h16M4 15h16"/>',
+  '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 12h8M12 8v8"/>',
+  '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>'
+];
+
+const ICONO_CANDADO = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+
+/* ==========================================================
+   Navegación entre secciones
+   ========================================================== */
+function mostrarSeccion(s) {
+  document.querySelectorAll(".tab-sec").forEach(b => b.classList.toggle("activo", b.dataset.sec === s));
+  $("s-robot").classList.toggle("oculto", s !== "robot");
+  $("s-python").classList.toggle("oculto", s !== "python");
+}
+document.querySelectorAll(".tab-sec").forEach(b => b.onclick = () => mostrarSeccion(b.dataset.sec));
+
+/* ==========================================================
+   Utilidades compartidas
+   ========================================================== */
+/* Versión comparable de un texto: sin mayúsculas, tildes, ¡ ! ¿ ? ni espacios sobrantes. */
+function comparable(t) {
+  return t.split("\n").map(s => s.trimEnd()).join("\n").trim()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[¡!¿?]/g, "")
+    .toLowerCase();
+}
+
+function confeti() {
+  const cont = $("confeti");
+  cont.innerHTML = "";
+  const colores = ["#c084fc", "#4ade80", "#fde047", "#fb923c", "#67e8f9", "#f0abfc"];
+  for (let k = 0; k < 70; k++) {
+    const i = document.createElement("i");
+    i.style.left = (Math.random() * 100) + "%";
+    i.style.background = colores[k % colores.length];
+    i.style.color = colores[k % colores.length];
+    i.style.animationDelay = (Math.random() * 0.6) + "s";
+    i.style.animationDuration = (2 + Math.random() * 1.4) + "s";
+    cont.appendChild(i);
+  }
+  setTimeout(() => { cont.innerHTML = ""; }, 4000);
+}
+
+let escribiendo = null;
+function escribir(el, texto) {
+  clearInterval(escribiendo);
+  el.textContent = "";
+  if (!texto) return;
+  let k = 0;
+  const paso = Math.max(1, Math.ceil(texto.length / 50));
+  escribiendo = setInterval(() => {
+    k += paso;
+    el.textContent = texto.slice(0, k);
+    if (k >= texto.length) clearInterval(escribiendo);
+  }, 30);
+}
+
+/* Dibuja una fila de nodos conectados por un camino curvo.
+   estado(i) devuelve "hecho", "actual", "bloq" o "" (disponible). */
+const senderos = {};
+function pintarSendero(id, nodos, estado, onClick) {
+  senderos[id] = { nodos, estado, onClick };
+  const cont = $(id);
+  const ancho = Math.max(cont.parentElement.clientWidth, nodos.length * 118);
+  const alto = 220;
+  cont.style.width = ancho + "px";
+  cont.style.height = alto + "px";
+  cont.innerHTML = "";
+
+  const pos = nodos.map((_, i) => ({
+    x: 85 + i * ((ancho - 170) / Math.max(1, nodos.length - 1)),
+    y: i % 2 === 0 ? 74 : 140
+  }));
+
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("width", ancho);
+  svg.setAttribute("height", alto);
+  for (let i = 0; i < pos.length - 1; i++) {
+    const a = pos[i], b = pos[i + 1];
+    const mx = (a.x + b.x) / 2;
+    const p = document.createElementNS(ns, "path");
+    p.setAttribute("d", `M${a.x} ${a.y} C${mx} ${a.y}, ${mx} ${b.y}, ${b.x} ${b.y}`);
+    p.setAttribute("fill", "none");
+    const bloqueado = estado(i + 1) === "bloq";
+    p.setAttribute("stroke", bloqueado ? "#a78bfa" : (estado(i) === "hecho" ? "#6ee7b7" : "#c4b5fd"));
+    p.setAttribute("stroke-dasharray", bloqueado ? "1 10" : "");
+    p.setAttribute("stroke-width", "8");
+    p.setAttribute("stroke-linecap", "round");
+    svg.appendChild(p);
+  }
+  cont.appendChild(svg);
+
+  nodos.forEach((nd, i) => {
+    const st = estado(i);
+    const b = document.createElement("button");
+    b.className = "nodo " + st;
+    const ico = document.createElement("span");
+    ico.className = "ico";
+    ico.innerHTML = svgIcono(nd.icono);
+    b.appendChild(ico);
+    if (st === "bloq") {
+      const c = document.createElement("span");
+      c.className = "candado";
+      c.innerHTML = ICONO_CANDADO;
+      b.appendChild(c);
+    }
+    if (st === "hecho") {
+      const c = document.createElement("span");
+      c.className = "check-b";
+      c.innerHTML = ICONO_CHECK;
+      b.appendChild(c);
+    }
+    b.style.left = pos[i].x + "px";
+    b.style.top = pos[i].y + "px";
+    b.disabled = st === "bloq";
+    b.setAttribute("aria-label", `${i + 1}. ${nd.titulo}`);
+    b.onclick = () => onClick(i);
+    cont.appendChild(b);
+
+    const et = document.createElement("div");
+    et.className = "nodo-etq";
+    et.style.left = pos[i].x + "px";
+    et.style.top = (pos[i].y + 44) + "px";
+    const etiqueta = document.createElement("span");
+    etiqueta.textContent = nd.titulo;
+    et.appendChild(etiqueta);
+    cont.appendChild(et);
+  });
+}
+
+let redibujando = null;
+window.addEventListener("resize", () => {
+  clearTimeout(redibujando);
+  redibujando = setTimeout(() => {
+    Object.keys(senderos).forEach(id => {
+      const s = senderos[id];
+      pintarSendero(id, s.nodos, s.estado, s.onClick);
+    });
+  }, 150);
+});
+
+/* ==========================================================
+   ROBOT
+   Coordenadas: x = columna (0 izquierda), y = fila (0 arriba)
+   ========================================================== */
+const MAX_PASOS = 30;
+const DIRS = ["N", "E", "S", "W"];
+const ANG = { N: 0, E: 90, S: 180, W: 270 };
+const VEC = { N: {dx:0, dy:-1}, E: {dx:1, dy:0}, S: {dx:0, dy:1}, W: {dx:-1, dy:0} };
+const NOMBRE_DIR = { N: "norte", E: "este", S: "sur", W: "oeste" };
+const TEXTO_BOTON = { AV: "Avanzar", IZQ: "Girar a la izquierda", DER: "Girar a la derecha" };
+const FUNCIONES = ["avanzar", "girar_izquierda", "girar_derecha", "print"];
+const AYUDA_FUNC = {
+  avanzar: "avanzar() no lleva nada dentro del paréntesis.",
+  girar_izquierda: "girar_izquierda() no lleva nada dentro del paréntesis.",
+  girar_derecha: "girar_derecha() no lleva nada dentro del paréntesis.",
+  print: 'print() necesita un texto entre comillas, por ejemplo print("Hola").'
+};
+
+const NIVELES = [
+  {
+    modo: "boton", titulo: "Camino recto", n: 5,
+    inicio: { x: 0, y: 2, dir: "E" }, meta: { x: 4, y: 2 }, obstaculos: [],
+    pista: "El robot ya mira hacia la meta. Basta con avanzar.",
+    aprendizaje: "Si el robot ya mira en la dirección correcta, solo necesitas avanzar."
+  },
+  {
+    modo: "boton", titulo: "Un muro al frente", n: 5,
+    inicio: { x: 0, y: 4, dir: "N" }, meta: { x: 3, y: 1 },
+    obstaculos: [{ x: 0, y: 3 }, { x: 3, y: 3 }, { x: 1, y: 1 }],
+    pista: "Hay un obstáculo justo delante. Tendrás que girar antes de avanzar.",
+    aprendizaje: "Girar cambia la dirección, pero no mueve al robot. Después de cada giro necesitas avanzar."
+  },
+  {
+    modo: "boton", titulo: "Laberinto", n: 6,
+    inicio: { x: 0, y: 5, dir: "N" }, meta: { x: 5, y: 0 },
+    obstaculos: [{ x: 0, y: 4 }, { x: 1, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 4 }],
+    pista: "Busca una ruta que rodee los muros, con giros en los lugares correctos.",
+    aprendizaje: "Si la secuencia falla, no hace falta empezar de cero: busca el paso que falla y corrígelo."
+  },
+  {
+    modo: "boton", titulo: "Zigzag", n: 6,
+    inicio: { x: 0, y: 5, dir: "N" }, meta: { x: 5, y: 0 },
+    obstaculos: [{ x: 1, y: 5 }, { x: 3, y: 4 }, { x: 4, y: 3 }, { x: 3, y: 0 }, { x: 0, y: 1 }],
+    pista: "Sube, gira, avanza y vuelve a girar varias veces. Piensa el camino completo antes de armar la secuencia.",
+    aprendizaje: "Planificar antes de ejecutar ahorra tiempo: imagina el recorrido y luego escribe los pasos en orden."
+  },
+  {
+    modo: "boton", titulo: "Tablero grande", n: 7,
+    inicio: { x: 0, y: 6, dir: "N" }, meta: { x: 6, y: 0 },
+    obstaculos: [{ x: 1, y: 5 }, { x: 4, y: 5 }, { x: 4, y: 3 }, { x: 2, y: 1 }, { x: 4, y: 0 }, { x: 1, y: 2 }, { x: 6, y: 3 }],
+    pista: "Cuenta cuántas casillas avanza el robot antes de cada giro.",
+    aprendizaje: "Un programa largo se arma con pasos simples: cada giro cambia el rumbo y cada avance es un paso."
+  },
+  {
+    modo: "codigo", titulo: "Tu primer código", n: 5,
+    inicio: { x: 0, y: 4, dir: "N" }, meta: { x: 3, y: 1 },
+    obstaculos: [{ x: 0, y: 3 }, { x: 3, y: 3 }, { x: 1, y: 1 }],
+    codigoInicial: "# Una instrucción por línea\n",
+    pista: "Es el mismo tablero del nivel 2, pero ahora escribes el programa.",
+    aprendizaje: "avanzar(), girar_izquierda() y girar_derecha() son funciones: un nombre seguido de paréntesis que hace una acción."
+  },
+  {
+    modo: "codigo", titulo: "Un mensaje", n: 5,
+    inicio: { x: 2, y: 4, dir: "N" }, meta: { x: 2, y: 0 },
+    obstaculos: [{ x: 1, y: 2 }, { x: 3, y: 2 }],
+    imprimir: "¡Llegué a la meta!",
+    codigoInicial: "# Llega a la meta y luego muestra un mensaje\n",
+    pista: 'Llega a la meta y después escribe print("¡Llegué a la meta!").',
+    aprendizaje: 'print() muestra en pantalla lo que escribes entre paréntesis. El texto va entre comillas para que Python lo reconozca como texto.'
+  },
+  {
+    modo: "codigo", titulo: "Corrige el programa", n: 6,
+    inicio: { x: 0, y: 5, dir: "N" }, meta: { x: 5, y: 0 },
+    obstaculos: [{ x: 0, y: 4 }, { x: 1, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 4 }],
+    codigoInicial:
+      "# Este programa tiene errores. Encuéntralos.\n" +
+      "girar_derecha()\n" + "avanzar()\n" + "avanzar()\n" + "avanzar()\n" +
+      "girar_izq()\n" + "avanzar()\n" + "avanzar()\n" +
+      "girar_derecha()\n" + "avanzar()\n" + "avanzar()\n" +
+      "girar_izquierda()\n" + "avanzar()\n" + "avanzar()\n" +
+      "avanzar\n",
+    pista: "Hay dos errores. El programa te dice en qué línea están.",
+    aprendizaje: "Depurar es leer con calma: el programa indica la línea donde algo no cuadra. Corrígela y vuelve a ejecutar."
+  }
+];
+
+let nivelActual = 0;
+let maxDesbloq = 0;
+let completados = NIVELES.map(() => false);
+let secuencia = [];
+let robot = { x: 0, y: 0, ang: 0 };
+let ejecutando = false;
+let corrida = 0;
+let timers = [];
+let ultimosItems = [];
+let salidaTxt = "";
+
+function L() { return NIVELES[nivelActual]; }
+function hayObstaculo(x, y) { return L().obstaculos.some(o => o.x === x && o.y === y); }
+function dirDe(ang) { return DIRS[(((ang % 360) + 360) % 360) / 90]; }
+function estadoInicial() { const i = L().inicio; return { x: i.x, y: i.y, ang: ANG[i.dir] }; }
+function esMeta(est) { return est.x === L().meta.x && est.y === L().meta.y; }
+
+function aplicar(est, op) {
+  if (op === "DER") return { ok: true, est: { ...est, ang: est.ang + 90 } };
+  if (op === "IZQ") return { ok: true, est: { ...est, ang: est.ang - 90 } };
+  const v = VEC[dirDe(est.ang)];
+  const nx = est.x + v.dx, ny = est.y + v.dy;
+  if (nx < 0 || ny < 0 || nx >= L().n || ny >= L().n) return { ok: false, motivo: "salida" };
+  if (hayObstaculo(nx, ny)) return { ok: false, motivo: "obstaculo" };
+  return { ok: true, est: { ...est, x: nx, y: ny } };
+}
+
+/* Quita el comentario de una línea sin tocar un # que esté dentro de un texto. */
+function quitarComentario(s) {
+  let dentro = null;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (dentro) { if (c === dentro) dentro = null; }
+    else if (c === '"' || c === "'") dentro = c;
+    else if (c === "#") return s.slice(0, i);
+  }
+  return s;
+}
+
+function normalizarComillas(t) {
+  return t.replace(/[“”„]/g, '"').replace(/[‘’]/g, "'");
+}
+
+function diagnosticar(linea) {
+  if (linea.includes("(") && !linea.includes(")")) return 'Falta cerrar el paréntesis ")".';
+  const m = linea.match(/^([A-Za-zÁÉÍÓÚáéíóúÑñ_]+)/);
+  if (!m) return 'No entiendo esta línea. Usa avanzar(), girar_izquierda(), girar_derecha() o print("texto").';
+  const id = m[1];
+  if (FUNCIONES.includes(id)) {
+    return linea.includes("(") ? AYUDA_FUNC[id] : `Faltan los paréntesis: escribe ${id}${id === "print" ? '("texto")' : "()"}.`;
+  }
+  if (!linea.includes("(")) return `Faltan los paréntesis después de "${id}".`;
+  const pref = (a, b) => { let k = 0; while (k < a.length && k < b.length && a[k] === b[k]) k++; return k; };
+  const sug = FUNCIONES.map(f => ({ f, n: pref(id, f) })).sort((a, b) => b.n - a.n)[0];
+  if (sug.n >= 5) return `No conozco la función "${id}". ¿Quisiste decir ${sug.f}?`;
+  return `No conozco la función "${id}".`;
+}
+
+function parsear(texto) {
+  const items = [];
+  normalizarComillas(texto).split("\n").forEach((raw, idx) => {
+    const linea = quitarComentario(raw).trim();
+    if (!linea) return;
+    const num = idx + 1;
+    if (/^avanzar\(\s*\)$/.test(linea)) items.push({ op: "AV", linea: num, texto: "avanzar()" });
+    else if (/^girar_izquierda\(\s*\)$/.test(linea)) items.push({ op: "IZQ", linea: num, texto: "girar_izquierda()" });
+    else if (/^girar_derecha\(\s*\)$/.test(linea)) items.push({ op: "DER", linea: num, texto: "girar_derecha()" });
+    else {
+      const m = linea.match(/^print\(\s*(["'])(.*)\1\s*\)$/);
+      if (m) items.push({ op: "PRINT", msg: m[2], linea: num, texto: linea });
+      else items.push({ error: diagnosticar(linea), linea: num, texto: linea });
+    }
+  });
+  return items;
+}
+
+function construirTablero() {
+  const lv = L();
+  const tab = $("tablero");
+  tab.innerHTML = "";
+  tab.style.setProperty("--n", lv.n);
+  const cuad = document.createElement("div");
+  cuad.className = "cuadricula";
+  cuad.style.gridTemplateColumns = `repeat(${lv.n}, 1fr)`;
+  cuad.style.gridTemplateRows = `repeat(${lv.n}, 1fr)`;
+  for (let y = 0; y < lv.n; y++) {
+    for (let x = 0; x < lv.n; x++) {
+      const c = document.createElement("div");
+      c.className = "celda";
+      if (hayObstaculo(x, y)) c.classList.add("muro");
+      if (lv.meta.x === x && lv.meta.y === y) { c.classList.add("meta"); c.textContent = "Meta"; }
+      cuad.appendChild(c);
+    }
+  }
+  tab.appendChild(cuad);
+  const r = document.createElement("div");
+  r.id = "robot";
+  r.className = "robot";
+  r.style.width = (100 / lv.n) + "%";
+  r.style.height = (100 / lv.n) + "%";
+  r.innerHTML = '<div class="cuerpo"><span class="flecha"></span></div>';
+  tab.appendChild(r);
+}
+
+function colocarRobot(animar = true) {
+  const r = $("robot");
+  const p = 100 / L().n;
+  if (!animar) r.classList.add("sin-transicion");
+  r.style.left = (robot.x * p) + "%";
+  r.style.top = (robot.y * p) + "%";
+  r.style.transform = `rotate(${robot.ang}deg)`;
+  if (!animar) { void r.offsetWidth; r.classList.remove("sin-transicion"); }
+}
+
+function itemsActuales() {
+  if (L().modo === "codigo") return parsear($("editor").value);
+  return secuencia.map(op => ({ op, texto: TEXTO_BOTON[op], linea: null }));
+}
+
+function renderLista(items, activo = -1, fallo = -1) {
+  const ul = $("lista");
+  ul.innerHTML = "";
+  const cod = L().modo === "codigo";
+  if (!items.length) {
+    const li = document.createElement("li");
+    li.className = "vacia";
+    li.textContent = cod ? "Escribe tu programa para ver la vista previa." : "Todavía no agregas instrucciones.";
+    ul.appendChild(li);
+  }
+  items.forEach((it, i) => {
+    const li = document.createElement("li");
+    const clases = [];
+    if (i === activo) clases.push("activa");
+    if (i === fallo || it.error) clases.push("fallo");
+    li.className = clases.join(" ");
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = it.linea ?? (i + 1);
+    const txt = document.createElement("span");
+    if (it.error) txt.textContent = it.error;
+    else if (cod) { const c = document.createElement("code"); c.textContent = it.texto; txt.appendChild(c); }
+    else txt.textContent = it.texto;
+    li.append(num, txt);
+    ul.appendChild(li);
+    if (i === activo) li.scrollIntoView({ block: "nearest" });
+  });
+  const validos = items.filter(x => !x.error).length;
+  const errores = items.length - validos;
+  $("contador").textContent = cod
+    ? `${validos} líneas${errores ? ` · ${errores} con error` : ""}`
+    : `${items.length} de ${MAX_PASOS}`;
+  actualizarBotones();
+}
+
+function refrescarLista() { renderLista(itemsActuales()); }
+
+function actualizarPantalla() {
+  const p = $("pantalla");
+  p.textContent = salidaTxt || "Aquí aparecen los mensajes de print().";
+  p.classList.toggle("vacia", !salidaTxt);
+}
+
+function mostrarMensaje(texto, tipo = "") {
+  const m = $("mensaje");
+  m.textContent = texto;
+  m.className = "estado " + tipo;
+}
+
+function pintarInfo() {
+  const lv = L();
+  $("rob-modo").textContent = lv.modo === "codigo" ? "Código" : "Botones";
+  $("rob-num").textContent = `Nivel ${nivelActual + 1} de ${NIVELES.length}`;
+  $("titulo-nivel").textContent = lv.titulo;
+  $("info-inicio").textContent = `Inicio: columna ${lv.inicio.x + 1}, fila ${lv.inicio.y + 1}, mirando al ${NOMBRE_DIR[lv.inicio.dir]}.`;
+  $("info-meta").textContent = `Meta: columna ${lv.meta.x + 1}, fila ${lv.meta.y + 1}.`;
+  $("info-pista").textContent = lv.pista;
+}
+
+function pintarNiveles() {
+  pintarSendero("sendero-robot", NIVELES.map((n, i) => ({ titulo: n.titulo, icono: ICONOS_ROBOT[i] })),
+    i => completados[i] ? "hecho" : i === nivelActual ? "actual" : i <= maxDesbloq ? "" : "bloq",
+    i => { if (!ejecutando) cargarNivel(i); });
+  pillRobot();
+  pillNivel();
+}
+
+function pillRobot() {
+  $("pill-robot").textContent = `Robot ${completados.filter(Boolean).length} de ${NIVELES.length}`;
+}
+
+function pillNivel() {
+  $("pill-nivel").textContent = `Nivel ${completados.filter(Boolean).length} de ${NIVELES.length}`;
+}
+
+function actualizarBotones() {
+  const cod = L().modo === "codigo";
+  const lleno = !cod && secuencia.length >= MAX_PASOS;
+  const vacia = cod ? !$("editor").value.trim() : secuencia.length === 0;
+  ["btn-av", "btn-izq", "btn-der"].forEach(id => { $(id).disabled = ejecutando || lleno; });
+  $("btn-quitar").disabled = ejecutando || vacia;
+  $("btn-borrar").disabled = ejecutando || vacia;
+  $("btn-ejecutar").disabled = ejecutando || vacia;
+  $("editor").disabled = ejecutando;
+}
+
+function animarChoque() {
+  const c = $("robot").querySelector(".cuerpo");
+  c.classList.remove("sacudir");
+  void c.offsetWidth;
+  c.classList.add("sacudir");
+}
+
+function agregar(op) {
+  if (ejecutando) return;
+  if (secuencia.length >= MAX_PASOS) {
+    mostrarMensaje(`Ya hay ${MAX_PASOS} instrucciones. Quita alguna o ejecuta lo que tienes.`, "aviso");
+    return;
+  }
+  secuencia.push(op);
+  refrescarLista();
+}
+
+function quitarUltima() {
+  if (ejecutando || !secuencia.length) return;
+  secuencia.pop();
+  refrescarLista();
+}
+
+function borrar() {
+  if (ejecutando) return;
+  if (L().modo === "codigo") {
+    $("editor").value = "";
+    reiniciar(false);
+    mostrarMensaje("Programa borrado.");
+    return;
+  }
+  secuencia = [];
+  reiniciar(false);
+  mostrarMensaje("Secuencia borrada.");
+}
+
+function cancelarTodo() {
+  corrida++;
+  timers.forEach(clearTimeout);
+  timers = [];
+  ejecutando = false;
+}
+
+function programar(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+function reiniciar(avisar = true) {
+  cancelarTodo();
+  robot = estadoInicial();
+  colocarRobot(false);
+  $("robot").querySelector(".cuerpo").classList.remove("saltar");
+  refrescarLista();
+  if (avisar) mostrarMensaje("El robot volvió a la salida. Tu programa sigue igual.");
+}
+
+function desbloquear(i) {
+  completados[i] = true;
+  maxDesbloq = Math.min(Math.max(maxDesbloq, i + 1), NIVELES.length - 1);
+  pintarNiveles();
+}
+
+function ejecutar() {
+  if (ejecutando) return;
+  const cod = L().modo === "codigo";
+  let items;
+  if (cod) {
+    items = parsear($("editor").value);
+    if (!items.length) { mostrarMensaje("Escribe al menos una instrucción.", "aviso"); return; }
+    const errs = items.filter(x => x.error);
+    if (errs.length) {
+      renderLista(items);
+      mostrarMensaje("Corrige estos errores antes de ejecutar:\n" + errs.map(e => `Línea ${e.linea}: ${e.error}`).join("\n"), "error");
+      return;
+    }
+  } else {
+    if (!secuencia.length) { mostrarMensaje("Primero agrega instrucciones.", "aviso"); return; }
+    items = itemsActuales();
+  }
+
+  cancelarTodo();
+  ejecutando = true;
+  const id = corrida;
+  ultimosItems = items;
+  robot = estadoInicial();
+  colocarRobot(false);
+  salidaTxt = "";
+  actualizarPantalla();
+  $("robot").querySelector(".cuerpo").classList.remove("saltar");
+  renderLista(items);
+  mostrarMensaje("Ejecutando...");
+
+  let i = 0;
+  const paso = () => {
+    if (id !== corrida) return;
+    if (i >= items.length) return cod ? finCodigo() : terminarSinMeta();
+    renderLista(items, i);
+    const it = items[i];
+    if (it.op === "PRINT") {
+      programar(() => {
+        if (id !== corrida) return;
+        salidaTxt += (salidaTxt ? "\n" : "") + it.msg;
+        actualizarPantalla();
+        i++;
+        programar(paso, 500);
+      }, 600);
+      return;
+    }
+    const r = aplicar(robot, it.op);
+    programar(() => {
+      if (id !== corrida) return;
+      if (!r.ok) return fallar(items, i, r.motivo);
+      robot = r.est;
+      colocarRobot();
+      if (!cod && esMeta(robot)) return celebrarMeta(items.length - (i + 1));
+      i++;
+      programar(paso, 550);
+    }, 500);
+  };
+  programar(paso, 300);
+}
+
+function fallar(items, i, motivo) {
+  ejecutando = false;
+  renderLista(items, -1, i);
+  animarChoque();
+  const it = items[i];
+  const ref = it.linea ? `la línea ${it.linea}` : `el paso ${i + 1}`;
+  const texto = motivo === "salida"
+    ? `En ${ref} el robot se salió del tablero. Revisa cuántas casillas avanza antes de girar.`
+    : `En ${ref} el robot chocó con un obstáculo. Cambia el programa y prueba de nuevo.`;
+  mostrarMensaje(texto, "error");
+}
+
+function terminarSinMeta() {
+  ejecutando = false;
+  renderLista(ultimosItems);
+  mostrarMensaje("La secuencia terminó, pero el robot no llegó a la meta. Revisa los giros y la cantidad de avances.", "aviso");
+}
+
+function finCodigo() {
+  ejecutando = false;
+  renderLista(ultimosItems);
+  const req = L().imprimir;
+  const enMeta = esMeta(robot);
+  if (enMeta && (!req || comparable(salidaTxt).includes(comparable(req)))) return celebrarMeta(0);
+  if (enMeta) {
+    mostrarMensaje(`Llegaste a la meta, pero falta el mensaje. Agrega: print("${req}")`, "aviso");
+    return;
+  }
+  mostrarMensaje("El programa terminó, pero el robot no llegó a la meta. Revisa qué hace cada línea.", "aviso");
+}
+
+function celebrarMeta(sobran) {
+  ejecutando = false;
+  renderLista(ultimosItems);
+  $("robot").querySelector(".cuerpo").classList.add("saltar");
+  mostrarMensaje("Llegaste a la meta.", "ok");
+  desbloquear(nivelActual);
+  programar(() => mostrarFin(sobran), 900);
+}
+
+function mostrarFin(sobran) {
+  const ultimo = nivelActual === NIVELES.length - 1;
+  const cod = L().modo === "codigo";
+  $("fin-titulo").textContent = ultimo ? "¡Terminaste el juego!" : "¡Meta alcanzada!";
+  let texto = cod
+    ? "Tu programa llegó a la meta. Cada línea se ejecutó en orden."
+    : "Tu secuencia llegó a la meta. El robot la siguió exactamente, en orden. Eso es un algoritmo.";
+  if (sobran > 0) texto += ` Sobraron ${sobran} instrucciones que no se ejecutaron.`;
+  $("fin-texto").textContent = texto;
+  $("fin-siguiente").textContent = ultimo ? "Volver al nivel 1" : "Siguiente nivel";
+  $("fin").showModal();
+}
+
+function cargarNivel(i) {
+  cancelarTodo();
+  nivelActual = i;
+  secuencia = [];
+  salidaTxt = "";
+  if ($("fin").open) $("fin").close();
+  const cod = L().modo === "codigo";
+  document.querySelectorAll(".solo-boton").forEach(el => el.classList.toggle("oculto", cod));
+  document.querySelectorAll(".solo-codigo").forEach(el => el.classList.toggle("oculto", !cod));
+  $("editor").value = L().codigoInicial || "";
+  $("h-lista").textContent = cod ? "Vista previa" : "Secuencia";
+  construirTablero();
+  robot = estadoInicial();
+  colocarRobot(false);
+  pintarInfo();
+  pintarNiveles();
+  actualizarPantalla();
+  refrescarLista();
+  mostrarMensaje(cod ? "Escribe el programa, una instrucción por línea, y ejecútalo." : "Agrega instrucciones y presiona Ejecutar.");
+}
+
+$("btn-av").onclick = () => agregar("AV");
+$("btn-izq").onclick = () => agregar("IZQ");
+$("btn-der").onclick = () => agregar("DER");
+$("btn-ejecutar").onclick = ejecutar;
+$("btn-reiniciar").onclick = () => reiniciar(true);
+$("btn-quitar").onclick = quitarUltima;
+$("btn-borrar").onclick = borrar;
+$("fin-cerrar").onclick = () => $("fin").close();
+$("fin-siguiente").onclick = () => {
+  $("fin").close();
+  cargarNivel(nivelActual === NIVELES.length - 1 ? 0 : nivelActual + 1);
+};
+$("editor").addEventListener("input", () => {
+  if (L().modo === "codigo" && !ejecutando) refrescarLista();
+});
+
+/* ==========================================================
+   PYTHON: intérprete para un subconjunto de Python
+   (print, variables, números, textos, comentarios, + - * /)
+   Errores con el formato de Python.
+   ========================================================== */
+const PY = (() => {
+  class PyErr { constructor(tipo, msg) { this.tipo = tipo; this.msg = msg; } }
+  const AYUDA = {
+    NameError: "Usaste un nombre que no existe. Revisa que lo escribas igual que al crearlo.",
+    SyntaxError: "Algo está mal escrito en esa línea. Revisa comillas, paréntesis y signos.",
+    TypeError: "Estás combinando tipos de datos que no se pueden combinar, como un texto y un número.",
+    IndentationError: "La línea no debe empezar con espacios. Escríbela pegada al margen.",
+    ZeroDivisionError: "No se puede dividir por cero."
+  };
+  const CURVAS = { "“": "U+201C", "”": "U+201D", "‘": "U+2018", "’": "U+2019" };
+
+  function tokenizar(s) {
+    const toks = [];
+    let i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === "#") break;
+      if (c === '"' || c === "'") {
+        const j = s.indexOf(c, i + 1);
+        if (j < 0) throw new PyErr("SyntaxError", "unterminated string literal");
+        toks.push({ t: "str", v: s.slice(i + 1, j) });
+        i = j + 1;
+        continue;
+      }
+      if (CURVAS[c]) throw new PyErr("SyntaxError", `invalid character '${c}' (${CURVAS[c]})`);
+      const num = s.slice(i).match(/^\d+(\.\d+)?/);
+      if (num) {
+        toks.push(num[1] ? { t: "float", v: parseFloat(num[0]) } : { t: "int", v: parseInt(num[0], 10) });
+        i += num[0].length;
+        continue;
+      }
+      const nom = s.slice(i).match(/^[A-Za-z_À-ÖØ-ɏ][A-Za-z0-9_À-ÖØ-ɏ]*/);
+      if (nom) { toks.push({ t: "name", v: nom[0] }); i += nom[0].length; continue; }
+      if ("+-*/(),=".includes(c)) { toks.push({ t: "op", v: c }); i++; continue; }
+      throw new PyErr("SyntaxError", "invalid syntax");
+    }
+    return toks;
+  }
+
+  const tipoNombre = x => x.t === "str" ? "str" : x.t === "int" ? "int" : "float";
+  const esNum = x => x.t === "int" || x.t === "float";
+  const numRes = (v, a, b) => ({ t: (a.t === "float" || b.t === "float") ? "float" : "int", v });
+
+  function fmt(x) {
+    if (x.t === "str") return x.v;
+    if (x.t === "int") return String(x.v);
+    return Number.isInteger(x.v) ? x.v.toFixed(1) : String(x.v);
+  }
+
+  function binop(op, a, b) {
+    const noSoporta = () => new PyErr("TypeError", `unsupported operand type(s) for ${op}: '${tipoNombre(a)}' and '${tipoNombre(b)}'`);
+    if (op === "+") {
+      if (a.t === "str" && b.t === "str") return { t: "str", v: a.v + b.v };
+      if (esNum(a) && esNum(b)) return numRes(a.v + b.v, a, b);
+      if (a.t === "str") throw new PyErr("TypeError", `can only concatenate str (not "${tipoNombre(b)}") to str`);
+      throw noSoporta();
+    }
+    if (op === "-" || op === "*") {
+      if (esNum(a) && esNum(b)) return numRes(op === "-" ? a.v - b.v : a.v * b.v, a, b);
+      if (op === "*" && a.t === "str" && b.t === "int") return { t: "str", v: a.v.repeat(Math.max(0, b.v)) };
+      throw noSoporta();
+    }
+    if (op === "/") {
+      if (!(esNum(a) && esNum(b))) throw noSoporta();
+      if (b.v === 0) throw new PyErr("ZeroDivisionError", "division by zero");
+      return { t: "float", v: a.v / b.v };
+    }
+    throw noSoporta();
+  }
+
+  class Parser {
+    constructor(toks, vars) { this.t = toks; this.i = 0; this.vars = vars; }
+    peek() { return this.t[this.i]; }
+    esOp(v) { const k = this.peek(); return !!k && k.t === "op" && k.v === v; }
+    expr() {
+      let a = this.term();
+      while (this.esOp("+") || this.esOp("-")) { const op = this.t[this.i++].v; a = binop(op, a, this.term()); }
+      return a;
+    }
+    term() {
+      let a = this.factor();
+      while (this.esOp("*") || this.esOp("/")) { const op = this.t[this.i++].v; a = binop(op, a, this.factor()); }
+      return a;
+    }
+    factor() {
+      const k = this.peek();
+      if (!k) throw new PyErr("SyntaxError", "invalid syntax");
+      if (this.esOp("-")) {
+        this.i++;
+        const f = this.factor();
+        if (f.t === "str") throw new PyErr("TypeError", "bad operand type for unary -: 'str'");
+        return { t: f.t, v: -f.v };
+      }
+      this.i++;
+      if (k.t === "int" || k.t === "float" || k.t === "str") return { t: k.t, v: k.v };
+      if (k.t === "name") {
+        if (!Object.prototype.hasOwnProperty.call(this.vars, k.v)) throw new PyErr("NameError", `name '${k.v}' is not defined`);
+        return this.vars[k.v];
+      }
+      if (k.t === "op" && k.v === "(") {
+        const e = this.expr();
+        if (!this.esOp(")")) throw new PyErr("SyntaxError", "'(' was never closed");
+        this.i++;
+        return e;
+      }
+      throw new PyErr("SyntaxError", "invalid syntax");
+    }
+    fin() { if (this.i < this.t.length) throw new PyErr("SyntaxError", "invalid syntax"); }
+  }
+
+  function ejecutarLinea(texto, vars, salida) {
+    if (/^[ \t]+\S/.test(texto)) throw new PyErr("IndentationError", "unexpected indent");
+    const toks = tokenizar(texto);
+    if (!toks.length) return;
+    const a = toks[0], b = toks[1];
+
+    if (a.t === "name" && b && b.t === "op" && b.v === "=") {
+      if (a.v === "print") throw new PyErr("SyntaxError", "cannot assign to function call");
+      if (toks.length < 3) throw new PyErr("SyntaxError", "invalid syntax");
+      const p = new Parser(toks.slice(2), vars);
+      const v = p.expr();
+      p.fin();
+      vars[a.v] = v;
+      return;
+    }
+
+    if (a.t === "name" && a.v === "print") {
+      if (!b) return;
+      if (b.t !== "op" || b.v !== "(") {
+        if (b.t === "str" || b.t === "int" || b.t === "float" || b.t === "name")
+          throw new PyErr("SyntaxError", "Missing parentheses in call to 'print'. Did you mean print(...)?");
+        throw new PyErr("SyntaxError", "invalid syntax");
+      }
+      const last = toks[toks.length - 1];
+      if (toks.length < 3 || !(last.t === "op" && last.v === ")")) throw new PyErr("SyntaxError", "'(' was never closed");
+      const dentro = toks.slice(2, -1);
+      const valores = [];
+      if (dentro.length) {
+        const p = new Parser(dentro, vars);
+        valores.push(p.expr());
+        while (p.esOp(",")) { p.i++; valores.push(p.expr()); }
+        p.fin();
+      }
+      salida.push(valores.map(fmt).join(" "));
+      return;
+    }
+
+    const p = new Parser(toks, vars);
+    p.expr();
+    p.fin();
+  }
+
+  function ejecutar(codigo) {
+    const vars = {};
+    const salida = [];
+    const lineas = codigo.split("\n");
+    for (let n = 0; n < lineas.length; n++) {
+      try {
+        ejecutarLinea(lineas[n], vars, salida);
+      } catch (e) {
+        if (!(e instanceof PyErr)) throw e;
+        return {
+          ok: false,
+          salida: salida.join("\n"),
+          error: { linea: n + 1, tipo: e.tipo, msg: e.msg, ayuda: AYUDA[e.tipo] || "" }
+        };
+      }
+    }
+    return { ok: true, salida: salida.join("\n") };
+  }
+
+  return { ejecutar };
+})();
+
+/* ==========================================================
+   Lecciones de Python
+   ========================================================== */
+const LECCIONES = [
+  {
+    unidad: "Unidad 1 · Mostrar texto",
+    titulo: "Tu primer programa",
+    teoria: [
+      "Un programa es una lista de instrucciones. La computadora las sigue en orden, de arriba hacia abajo.",
+      "print() muestra un texto en pantalla. Lo que quieres mostrar va entre paréntesis y entre comillas."
+    ],
+    ejemplo: 'print("Hola")',
+    consigna: "Escribe un programa que muestre: Hola, mundo",
+    esperado: "Hola, mundo"
+  },
+  {
+    unidad: "Unidad 1 · Mostrar texto",
+    titulo: "Las comillas",
+    teoria: [
+      'Un texto siempre va entre comillas dobles ("). Por ejemplo: "Hola".',
+      "Si olvidas las comillas, Python piensa que escribiste un nombre, y da error."
+    ],
+    ejemplo: 'print("Python")',
+    consigna: 'Muestra la palabra Python entre comillas dobles.',
+    esperado: "Python",
+    exige: [{ re: /"[^"]*"/, msg: "Usa comillas dobles alrededor del texto." }]
+  },
+  {
+    unidad: "Unidad 1 · Mostrar texto",
+    titulo: "Varias líneas",
+    teoria: [
+      "Python ejecuta una línea después de otra. Cada print() deja su texto en una línea nueva."
+    ],
+    ejemplo: 'print("Uno")\nprint("Dos")',
+    consigna: "Muestra tres líneas: Lunes, Martes y Miércoles, una debajo de otra.",
+    esperado: "Lunes\nMartes\nMiércoles"
+  },
+  {
+    unidad: "Unidad 2 · Comentarios y números",
+    titulo: "Comentarios",
+    teoria: [
+      "Un comentario empieza con #. Python lo ignora. Sirve para dejar notas en tu código."
+    ],
+    ejemplo: '# Esta línea no se ejecuta\nprint("Listo")',
+    consigna: "Escribe un comentario cualquiera y después muestra: Listo",
+    esperado: "Listo",
+    exige: [{ re: /^\s*#/m, msg: "Falta el comentario. Debe empezar con #, en una línea sola." }]
+  },
+  {
+    unidad: "Unidad 2 · Comentarios y números",
+    titulo: "Calcular",
+    teoria: [
+      "Python también calcula. Usa + para sumar, - para restar, * para multiplicar y / para dividir.",
+      "Los números no van entre comillas."
+    ],
+    ejemplo: "print(3 * 4)",
+    consigna: "Muestra el resultado de 8 * 3.",
+    esperado: "24",
+    exige: [{ re: /\*/, msg: "Usa el operador * para multiplicar." }]
+  },
+  {
+    unidad: "Unidad 2 · Comentarios y números",
+    titulo: "Dividir",
+    teoria: [
+      "La división con / siempre entrega un número con decimal, aunque la división sea exacta."
+    ],
+    ejemplo: "print(8 / 2)",
+    consigna: "Divide 9 entre 2 y muestra el resultado.",
+    esperado: "4.5",
+    exige: [{ re: /\//, msg: "Usa el operador / para dividir." }]
+  },
+  {
+    unidad: "Unidad 3 · Variables",
+    titulo: "Variables",
+    teoria: [
+      "Una variable guarda un valor con un nombre. Se crea con el signo =: nombre = valor.",
+      "Después puedes usar el nombre en lugar del valor."
+    ],
+    ejemplo: 'ciudad = "Linares"\nprint(ciudad)',
+    consigna: 'Crea una variable llamada color con el valor "verde" y muéstrala.',
+    esperado: "verde",
+    exige: [{ re: /^\s*color\s*=/m, msg: "Crea la variable así: color = ..." }]
+  },
+  {
+    unidad: "Unidad 3 · Variables",
+    titulo: "Unir textos",
+    teoria: [
+      "Con + puedes unir textos. Un texto no se puede unir directamente con un número."
+    ],
+    ejemplo: 'nombre = "Ana"\nprint("Hola, " + nombre)',
+    consigna: 'Guarda "Programación" en una variable llamada curso y muestra: Curso: Programación',
+    esperado: "Curso: Programación",
+    exige: [{ re: /^\s*curso\s*=/m, msg: "Guarda el texto en una variable llamada curso." }]
+  },
+  {
+    unidad: "Unidad 3 · Variables",
+    titulo: "Varios valores",
+    teoria: [
+      "print() puede recibir varios valores separados por comas. Python los muestra con un espacio entre ellos."
+    ],
+    ejemplo: 'edad = 15\nprint("Tengo", edad, "años")',
+    consigna: "Crea la variable edad con el valor 16 y muestra: Tengo 16 años",
+    esperado: "Tengo 16 años",
+    exige: [{ re: /^\s*edad\s*=\s*16\s*$/m, msg: "Crea la variable con edad = 16." }]
+  }
+];
+
+let pyActual = 0;
+let pyHecho = 0;
+const pyCodigo = [];
+
+function cargarProgreso() {
+  try { pyHecho = Math.min(parseInt(localStorage.getItem("pyHecho") || "0", 10) || 0, LECCIONES.length); }
+  catch (e) { pyHecho = 0; }
+}
+function guardarProgreso() {
+  try { localStorage.setItem("pyHecho", String(pyHecho)); } catch (e) { /* sin almacenamiento */ }
+}
+
+function pillPython() {
+  $("pill-python").textContent = `Python ${pyHecho} de ${LECCIONES.length}`;
+}
+
+function renderSenderoPython() {
+  pintarSendero("sendero-python", LECCIONES.map((L, i) => ({ titulo: L.titulo, icono: ICONOS_PY[i] })),
+    i => i < pyHecho ? "hecho" : i === pyActual ? "actual" : i <= pyHecho ? "" : "bloq",
+    i => { if (i <= pyHecho) mostrarLeccion(i); });
+  pillPython();
+}
+
+function actualizarProgreso() {
+  const total = LECCIONES.length;
+  $("barra").style.width = (pyHecho / total * 100) + "%";
+  $("progreso-txt").textContent = `${pyHecho} de ${total} lecciones`;
+}
+
+function mostrarLeccion(i) {
+  pyActual = i;
+  const L = LECCIONES[i];
+  $("py-unidad").textContent = L.unidad;
+  $("py-titulo").textContent = L.titulo;
+  const teo = $("py-teoria");
+  teo.innerHTML = "";
+  L.teoria.forEach(t => {
+    const p = document.createElement("p");
+    p.textContent = t;
+    teo.appendChild(p);
+  });
+  $("py-ejemplo").textContent = L.ejemplo;
+  $("py-consigna").textContent = L.consigna;
+  $("py-editor").value = pyCodigo[i] ?? "";
+  $("py-salida").textContent = "Todavía no has ejecutado nada.";
+  $("py-salida").classList.add("vacia");
+  $("py-resultado").innerHTML = "";
+  $("py-siguiente").classList.toggle("oculto", i >= pyHecho || i === LECCIONES.length - 1);
+  renderSenderoPython();
+  actualizarProgreso();
+  $("py-editor").focus();
+}
+
+function mostrarSalida(res) {
+  const s = $("py-salida");
+  s.classList.remove("vacia");
+  if (res.ok) { s.textContent = res.salida || "(sin salida)"; return; }
+  const previa = res.salida ? res.salida + "\n" : "";
+  s.textContent = previa + `Línea ${res.error.linea}: ${res.error.tipo}: ${res.error.msg}`;
+}
+
+function mostrarFallo(titulo, detalle, ayuda) {
+  const r = $("py-resultado");
+  r.innerHTML = "";
+  const box = document.createElement("div");
+  box.className = "resultado mal";
+  const h = document.createElement("h3");
+  h.textContent = titulo;
+  box.appendChild(h);
+  if (ayuda) { const p = document.createElement("p"); p.textContent = ayuda; box.appendChild(p); }
+  if (detalle) { const pre = document.createElement("pre"); pre.textContent = detalle; box.appendChild(pre); }
+  r.appendChild(box);
+}
+
+function mostrarExito(salida) {
+  const r = $("py-resultado");
+  r.innerHTML = `
+    <div class="resultado bien">
+      <svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      <h3>¡Muy bien!</h3>
+      <p>${pyActual === LECCIONES.length - 1 ? "Terminaste el curso básico." : "Tu programa hizo lo que se pedía."}</p>
+      <pre id="py-salida-ok"></pre>
+    </div>`;
+  escribir($("py-salida-ok"), salida);
+  if (pyActual === 0) confeti();
+}
+
+function comprobar() {
+  const L = LECCIONES[pyActual];
+  const codigo = $("py-editor").value;
+  const res = PY.ejecutar(codigo);
+  mostrarSalida(res);
+  if (!res.ok) {
+    mostrarFallo(`Error en la línea ${res.error.linea}`, `${res.error.tipo}: ${res.error.msg}`, res.error.ayuda);
+    return;
+  }
+  const req = (L.exige || []).find(r => !r.re.test(codigo));
+  if (req) { mostrarFallo("Casi", "", req.msg); return; }
+  // Sin distinguir mayúsculas, tildes ni signos ¡ ! ¿ ?
+  if (comparable(res.salida) !== comparable(L.esperado)) {
+    mostrarFallo(
+      "Tu salida no es la que se pedía",
+      `Esperado:\n${L.esperado}\n\nObtuviste:\n${res.salida || "(nada)"}`,
+      "Revisa el texto, los espacios y las comillas."
+    );
+    return;
+  }
+  pyCodigo[pyActual] = codigo;
+  if (pyActual + 1 > pyHecho) {
+    pyHecho = pyActual + 1;
+    guardarProgreso();
+  }
+  mostrarExito(res.salida);
+  $("py-siguiente").classList.toggle("oculto", pyActual === LECCIONES.length - 1);
+  renderSenderoPython();
+  actualizarProgreso();
+}
+
+$("py-ejecutar").onclick = () => {
+  const res = PY.ejecutar($("py-editor").value);
+  mostrarSalida(res);
+  $("py-resultado").innerHTML = "";
+};
+$("py-comprobar").onclick = comprobar;
+$("py-siguiente").onclick = () => {
+  if (pyActual + 1 < LECCIONES.length) mostrarLeccion(pyActual + 1);
+};
+$("py-editor").addEventListener("input", () => { pyCodigo[pyActual] = $("py-editor").value; });
+
+/* ==========================================================
+   Arranque
+   ========================================================== */
+cargarNivel(0);
+cargarProgreso();
+mostrarLeccion(Math.min(pyHecho, LECCIONES.length - 1));
+</script>
+</body>
+</html>
